@@ -11,6 +11,7 @@ start /wait msmpisetup.exe
 start /wait VC_redist.x64.exe
 start /wait vcredist_x64.exe
 start /wait .\LVRTE2017SP1_f4Patch-64std\setup.exe
+start /wait ni-vision-runtime_20.7_online.exe
 
 call conda env remove -n stitching
 
