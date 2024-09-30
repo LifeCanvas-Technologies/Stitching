@@ -23,6 +23,8 @@ call pip install -r Requirements.txt
 
 call pip install zetastitcher cvxpy==1.1.18 qpsolvers==1.8.0 quadprog==0.1.11
 
+call pip install pystripe
+
 @echo off
 
 set SCRIPT="%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.vbs"
