@@ -69,6 +69,8 @@ import time
 import datetime
 import operator
 import platform
+import numpy as np
+import tifffile
 
 from math import *
 from glob import glob
@@ -311,7 +313,7 @@ def worker():
       # check the tag of the received message
       if status.tag == DIETAG:
          end_signal = ['Exit cpu n. ', myrank]
-         print (end_signal[0], end_signal[1])
+         # print (end_signal[0], end_signal[1])
          comm.send(end_signal, dest=0, tag=1)
          return
 
@@ -327,22 +329,22 @@ def worker():
 ###############################################################################
 
 def read_input(inputf,nline=0):
-    """
-    Reads the file included in inputf at least up to line number nline (if declared).
+   """
+   Reads the file included in inputf at least up to line number nline (if declared).
 
-    """
-    i = 0
-    data = [] 
-    f = open(inputf, 'r')
-    for line in f:
-    	line = line.strip()
-    	l = line.split(' ', 1)
-    	data.append(l)
-    	if (nline != 0) and (i > nline):
-    		break
-    	i += 1
-    f.close()
-    return data
+   """
+   i = 0
+   data = [] 
+   f = open(inputf, 'r')
+   for line in f:
+      line = line.strip()
+      l = line.split(' ', 1)
+      data.append(l)
+      if (nline != 0) and (i > nline):
+         break
+      i += 1
+   f.close()
+   return data
 
 
 # # suggested by raghu.erapaneedi@uni-wuerzburg.de
@@ -354,31 +356,31 @@ def read_input(inputf,nline=0):
 #     nslices = int(dimensions.getAttribute('stack_slices'))
             
 def extract_np(inputf):
-    """
-    extract the number of slices along z from the input xml file.
+   """
+   extract the number of slices along z from the input xml file.
 
-    """
-    data = read_input(inputf, 8)
-    for tmp_string in data :
-    	#tmp_string = data[8][1]
-    	if tmp_string[1].find('stack_slices="') != -1 :
-    		start = tmp_string[1].find('stack_slices="')+14
-    		break
-    end = tmp_string[1].find('" />')
-    sel_string = tmp_string[1][start:end]
-    nslices = int(sel_string)
-    
-    start = tmp_string[1].find('stack_rows="')+12
-    end = start + tmp_string[1][start:].find('"')
-    sel_string = tmp_string[1][start:end]
-    nrows = int(sel_string)
-    
-    start = tmp_string[1].find('stack_columns="')+15
-    end = start + tmp_string[1][start:].find('"')
-    sel_string = tmp_string[1][start:end]
-    ncols = int(sel_string)
-    
-    return (nrows, ncols, nslices)
+   """
+   data = read_input(inputf, 8)
+   for tmp_string in data :
+   #tmp_string = data[8][1]
+      if tmp_string[1].find('stack_slices="') != -1 :
+         start = tmp_string[1].find('stack_slices="')+14
+         break
+   end = tmp_string[1].find('" />')
+   sel_string = tmp_string[1][start:end]
+   nslices = int(sel_string)
+   
+   start = tmp_string[1].find('stack_rows="')+12
+   end = start + tmp_string[1][start:].find('"')
+   sel_string = tmp_string[1][start:end]
+   nrows = int(sel_string)
+   
+   start = tmp_string[1].find('stack_columns="')+15
+   end = start + tmp_string[1][start:].find('"')
+   sel_string = tmp_string[1][start:end]
+   ncols = int(sel_string)
+   
+   return (nrows, ncols, nslices)
 
 
 def find_last_slash(string):
@@ -585,10 +587,11 @@ def dispatcher_step6(queue,rs_fname):  # 2017-02-06. Giulio. @ADDED rs_fname
    Input:
       queue = list of job inputs
    """
-
+   # print("\n*******\n\nDispatcher Step 6\n\n*********\n")
    # support for suspend/resume
    # @ADDED by Giulio Iannello 2017-02-06
    n_tasks = len(queue)
+   # print("n_tasks:\n{}\n\n".format(n_tasks))
    # @CHANGED by Giulio Iannello 2017-03-12
    if suspend_resume_enabled :
       rs_file = open(rs_fname, 'rb')
@@ -606,9 +609,12 @@ def dispatcher_step6(queue,rs_fname):  # 2017-02-06. Giulio. @ADDED rs_fname
    for rank in range(1, min(len(queue)+1,nprocs)):
       # get the next input to work on 
       input_file = pop_left(queue)
+      # print("!!!!!!!!!!!!!!!!!1\n")
       while (input_file != None) and (list(input_file.keys())[0] in done) :
+         # print("!!!!!!!!!!!!!!!!!2\n")
          input_file = pop_left(queue)
       if input_file == None :
+         # print("!!!!!!!!!!!!!!!!!3\n")
          # the queue is empty, no more work to do
          break
       # send the next input to each rank
@@ -618,6 +624,7 @@ def dispatcher_step6(queue,rs_fname):  # 2017-02-06. Giulio. @ADDED rs_fname
    print('DISPATCHER: first loop terminated')
       
    while (queue) :
+      # print("!!!!!!!!!!!!!!!!!4\n")
       input_file = pop_left(queue)
       while (input_file != None) and (list(input_file.keys())[0] in done) :
          input_file = pop_left(queue)
@@ -626,11 +633,13 @@ def dispatcher_step6(queue,rs_fname):  # 2017-02-06. Giulio. @ADDED rs_fname
          break
       # receive result from worker
       status = MPI.Status()
+      # print("!!!!!!!!!!!!!!!!!5 -- status: {}\n".format(status))
       flag = comm.recv(source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG, status=status)
       if status.tag != 0 :
          raise ValueError("Wrong tag: a message signalling a finished task expected")
       done.append(list(flag.keys())[0])
       if suspend_resume_enabled :
+         # print("!!!!!!!!!!!!!!!!!6\n")
          # save new resume status
          rs_file = open(rs_fname, 'wb')
          pickle.dump(done,rs_file)
@@ -642,11 +651,14 @@ def dispatcher_step6(queue,rs_fname):  # 2017-02-06. Giulio. @ADDED rs_fname
       
    while len(done) < n_tasks :
       # receive result from worker
+      # print("!!!!!!!!!!!!!!!!!7\n")
       status = MPI.Status()
+      # print("!!!!!!!!!!!!!!!!!8 -- status: {}\n".format(status))
       flag = comm.recv(source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG, status=status)
       if status.tag != 0 :
          raise ValueError("Wrong tag: a message signalling a finished task expected")
       done.append(list(flag.keys())[0])
+      # print("!!!!!!!!!!!!!!!!!9\n")
       if suspend_resume_enabled :
          # save new resume status
          rs_file = open(rs_fname, 'wb')
@@ -657,6 +669,7 @@ def dispatcher_step6(queue,rs_fname):  # 2017-02-06. Giulio. @ADDED rs_fname
       
    # there's no more work to do, so receive all the results from the workers
    status = MPI.Status()
+   # print("!!!!!!!!!!!!!!!!!10 -- status: {}\n".format(status))
    #flag = comm.recv(source=MPI.ANY_SOURCE, tag=0, status=status)
    # tell all the workers to exit by sending an empty message with the DIETAG
    for rank in range(1, nprocs):
@@ -707,7 +720,15 @@ def read_params():
    # Declare input file
    input_name = read_item(params, '-projin=', './input.xml')
    flat_path = read_item(params, '-flatpath=', '')
-   print("parastitcher flat_path: ", flat_path)
+   flat_mean = 128
+   if flat_path != '':
+      flat_data = tifffile.imread(flat_path)
+   #    flat_data = np.array(flat_data)
+      flat_mean = int(round(np.mean(flat_data), 0))
+      # flat_file = tifffile(flat_path)
+
+   # print("mean: {}".format(mean))   
+   print("parastitcher flat_path: {}, mean: {}".format(flat_path, flat_mean))
 
    #------------- generate a temporary file with image size information
    
@@ -789,11 +810,11 @@ def read_params():
    last_string = collect_instructions(params)
    # Return values
    # 2016-12-10. Giulio. @ADDED parameter gi_np
-   return (input_name, output_name, flat_path, wb1, wb2, wb3, sfmt, dfmt, iresolutions, max_res, isotropic, max_res_D, params, last_string, height, width, depth, bytes_x_chan, n_chans)
+   return (input_name, output_name, flat_path, flat_mean, wb1, wb2, wb3, sfmt, dfmt, iresolutions, max_res, isotropic, max_res_D, params, last_string, height, width, depth, bytes_x_chan, n_chans)
 
 
 
-def read_item(input_arr, item, default,message=True):
+def read_item(input_arr, item, default,message=False):
    """
    Read the value related to "item" from the list "input_arr" and if no item are present set it to "default".
    Please note: The function convert the output to the same type of "default" variable
@@ -1030,7 +1051,7 @@ def generate_first_command(input_name, output_name, flat_path, wb1, wb2, wb3, sf
    for i in iresolutions:
       tmp_res = tmp_res + str(i)
    first_string = first_string + ' --resolutions=' +  tmp_res + ' -s="' + input_name + '" -d="' + output_name + '" '
-   if flat_path != '': first_string = first_string  + '--flatpath="' + flat_path + '" '
+   # if flat_path != '': first_string = first_string  + '--flatpath="' + flat_path + '" '
    if (last_string != []):
       first_string = first_string + last_string 
    first_string = first_string + ' --makedirs' 
@@ -1062,7 +1083,7 @@ def generate_final_command(input_name, output_name, flat_path, wb1, wb2, wb3, sf
    for i in iresolutions:
       tmp_res = tmp_res + str(i)
    final_string = final_string + ' --resolutions=' +  tmp_res + ' -s="' + input_name + '" -d="' + output_name + '" '
-   if flat_path != '': final_string = final_string  + '--flatpath="' + flat_path + '" '
+   # if flat_path != '': final_string = final_string  + '--flatpath="' + flat_path + '" '
    if (last_string != []):
       final_string = final_string + last_string 
    final_string = final_string + ' --metadata' 
@@ -1070,7 +1091,7 @@ def generate_final_command(input_name, output_name, flat_path, wb1, wb2, wb3, sf
 
 
 
-def generate_parallel_command(start_list, end_list, input_name, output_name, flat_path, wb1, wb2, wb3, sfmt, dfmt, iresolutions, max_res,params, last_string):
+def generate_parallel_command(start_list, end_list, input_name, output_name, flat_path, flat_mean, wb1, wb2, wb3, sfmt, dfmt, iresolutions, max_res,params, last_string):
    """
    Generate the list of parallel command lines
    Input:
@@ -1100,7 +1121,7 @@ def generate_parallel_command(start_list, end_list, input_name, output_name, fla
       for j in iresolutions:
          tmp_res = tmp_res + str(j)
       dummy = dummy + ' --resolutions=' +  tmp_res + ' -s="' + input_name + '" -d="' + output_name + '" '
-      if flat_path != '': dummy = dummy  + '--flatpath="' + flat_path + '" '
+      if flat_path != '': dummy = dummy  + '--flatpath="' + flat_path + '" --flatmean=' + str(flat_mean)
       if(last_string != []):
          dummy = dummy + last_string 
       dummy = dummy + ' --parallel'
@@ -1279,7 +1300,7 @@ def create_commands(gi_np,info=False): # 2016-12-10. Giulio. @ADDED parameter gi
    """
    # Call function read_params
    # 2017-03-12. Giulio. @REMOVED parameter gi_np (it is passed from main)
-   (input_name, output_name, flat_path, wb1, wb2, wb3, sfmt, dfmt, iresolutions, max_res, isotropic, max_res_D, params, last_string, height, width, depth, bytes_x_chan, n_chans) = read_params()
+   (input_name, output_name, flat_path, flat_mean, wb1, wb2, wb3, sfmt, dfmt, iresolutions, max_res, isotropic, max_res_D, params, last_string, height, width, depth, bytes_x_chan, n_chans) = read_params()
    print("#"*80)
    print("Input file = ", input_name)   
    print("Output directory", output_name)
@@ -1350,9 +1371,11 @@ def create_commands(gi_np,info=False): # 2016-12-10. Giulio. @ADDED parameter gi
       # Generate the string to initialize parallel computation
       first_string = generate_first_command(input_name, output_name, flat_path, wb1, wb2, wb3, sfmt, dfmt, iresolutions, max_res, params, last_string)
       # Generate the list of parallel command lines
-      list_string = generate_parallel_command(start_list, end_list, input_name, output_name, flat_path, wb1, wb2, wb3, sfmt, dfmt, iresolutions, max_res, params, last_string)
+      list_string = generate_parallel_command(start_list, end_list, input_name, output_name, flat_path, flat_mean, wb1, wb2, wb3, sfmt, dfmt, iresolutions, max_res, params, last_string)
       # Generate the string to merge all metadadata
       final_string = generate_final_command(input_name, output_name, flat_path, wb1, wb2, wb3, sfmt, dfmt, iresolutions, max_res, params, last_string)
+
+      # print("First string:\n{}\n\nList String:\n{}\n\nFinal String:\n{}\n\n".format(first_string, list_string, final_string))
 
    # Return strings
    return (first_string, list_string, output_name, len_arr, final_string) # 2017-02-06. Giulio. @ADDED output_name
@@ -1675,7 +1698,7 @@ if __name__ == '__main__':
       elif step6 :  
 
          ##################### STEP 6
-
+         # print('banana')
          if info :
             # get info and print them
             (first_string, list_string, output_name, len_arr, final_string) = create_commands(nprocs-1,True) # 2017-02-06. Giulio. @ADDED output_name
@@ -1693,9 +1716,9 @@ if __name__ == '__main__':
                   execution_string = prefix+first_string + " > " + "output_first.out"
                else :
                   execution_string = prefix+first_string
-               print("Before Execution...\n\n\n\n\n\n\n")
+               # print("Before Execution...\n\n\n\n\n\n\n")
                os.system(execution_string)
-               print("Printing Execution String:\n\n")
+               # print("Printing Execution String:\n\n")
                print (execution_string) # 2016-12-10. Giulio.
                if suspend_resume_enabled :
                   rs_file = open(rs_fname, 'wb')
@@ -1707,17 +1730,27 @@ if __name__ == '__main__':
             npoints = len_arr
             # Start scoring the task list
             scores = score_function(npoints)
+            # print("scores:\n{}\n\n".format(scores))
             # Sort tasks by score
             elaborations = sort_elaborations(scores)
+            # print("elaborations:\n{}\n\n".format(elaborations))
             work_list = sort_work(cmd_string,elaborations)
+            # print("work_list:\n{}\n\n".format(work_list))
+            # print("rs_fname:\n{}\n\n".format(rs_fname))
             # Call the routine to dinstibute the work between cpus
             dispatcher_step6(work_list,rs_fname) # 2017-02-06. Giulio. @ADDED parameter
             # Execute the command to merge the metadata
+           
+           
+           
             if debug_level > 0 :
                execution_string = prefix+final_string + " > " + "output_final.out"
             else :
                execution_string = prefix+final_string
             os.system(execution_string)
+            
+            
+            
             print (execution_string) # 2016-12-10. Giulio.
 			 
          #################### END STEP 6

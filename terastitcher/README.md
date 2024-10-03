@@ -1,4 +1,12 @@
 TeraStitcher
+
+This is the repository to download for releases for users. It contains the compiled updated source code that we use at LCT.
+
+If you would like to edit the source code and re-compile, please see the instructions here https://lifecanvastech.slab.com/posts/2023-11-16-terastitcher-mod-fix-mni42212
+
+The source code is located at https://github.com/LifeCanvas-Technologies/LCT-Terastitcher
+
+
 ===========================================================
 
 A tool for fast automatic 3D-stitching of teravoxel-sized 
