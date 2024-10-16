@@ -7,6 +7,16 @@ for /f %%f in ('dir /ad /b c:\terastitcher\') do rd /s /q c:\terastitcher\%%f
 echo f | xcopy /s /e /q ".\terastitcher" "C:\terastitcher"
 pause
 
+echo Copy the 'Stitch GUI\SmartSPIM' folder to 'C:\Program Files\SmartSPIM'
+pause
+@REM echo Create an empty 'c:\Program Files\SmartSPIM' folder if it doesn't exist.
+@REM pause
+
+@REM del /s /f /q C:\Program Files\SmartSPIM*.*
+@REM for /f %%f in ('dir /ad /b C:\Program Files\SmartSPIM\') do rd /s /q C:\Program Files\SmartSPIM\%%f
+@REM echo f | xcopy /s /e /q ".\Stitch GUI\SmartSPIM" "C:\Program Files\SmartSPIM"
+@REM pause
+
 start /wait msmpisetup.exe
 start /wait VC_redist.x64.exe
 start /wait vcredist_x64.exe
