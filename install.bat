@@ -1,14 +1,14 @@
 @echo off
-echo Create an empty 'c:/terastitcher' folder if it doesn't exist.  Add 'c:/terastitcher' to path.
+echo Copy the 'terastitcher' directory to the C: drive and add 'C:\terastitcher' to the PATH environment variable, then press any key to continue.
 pause
 
-del /s /f /q c:\terastitcher\*.*
-for /f %%f in ('dir /ad /b c:\terastitcher\') do rd /s /q c:\terastitcher\%%f
-echo f | xcopy /s /e /q ".\terastitcher" "C:\terastitcher"
-pause
+@REM del /s /f /q c:\terastitcher\*.*
+@REM for /f %%f in ('dir /ad /b c:\terastitcher\') do rd /s /q c:\terastitcher\%%f
+@REM echo f | xcopy /s /e /q ".\terastitcher" "C:\terastitcher"
+@REM pause
 
-echo Copy the 'Stitch GUI\SmartSPIM' folder to 'C:\Program Files\SmartSPIM'
-pause
+@REM echo Copy the 'Stitch GUI\SmartSPIM' folder to 'C:\Program Files\SmartSPIM'
+@REM pause
 @REM echo Create an empty 'c:\Program Files\SmartSPIM' folder if it doesn't exist.
 @REM pause
 
