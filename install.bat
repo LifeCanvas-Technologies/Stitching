@@ -1,6 +1,8 @@
 @echo off
 echo Copy the 'terastitcher' directory to the C: drive and add 'C:\terastitcher' to the PATH environment variable, then press any key to continue.
 pause
+echo Download and run the BioFormats installer at: https://viewer.imaris.com/download/ImarisConvertBioformats_Latest.exe, then press any key to continue.
+pause
 
 @REM del /s /f /q c:\terastitcher\*.*
 @REM for /f %%f in ('dir /ad /b c:\terastitcher\') do rd /s /q c:\terastitcher\%%f
@@ -16,6 +18,7 @@ pause
 @REM for /f %%f in ('dir /ad /b C:\Program Files\SmartSPIM\') do rd /s /q C:\Program Files\SmartSPIM\%%f
 @REM echo f | xcopy /s /e /q ".\Stitch GUI\SmartSPIM" "C:\Program Files\SmartSPIM"
 @REM pause
+
 
 start /wait msmpisetup.exe
 start /wait VC_redist.x64.exe
