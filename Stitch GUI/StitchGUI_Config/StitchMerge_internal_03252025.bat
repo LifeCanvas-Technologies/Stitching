@@ -55,7 +55,7 @@ echo Number of files: %file_count%
 
 :: Write to a JSON file
 set "json_file=%CD%\..\pp_log.json"
-set PPLogger=C:\terastitcher\update_pp_log2.py
+set PPLogger=C:\terastitcher\update_pp_log.py
 python "%PPLogger%" "%WORKINGDIR%" "%DIRNAME%" "%OUTPUTDIR%" "%file_count%" "%json_file%"
 echo JSON entry updated to: %json_file%
 
