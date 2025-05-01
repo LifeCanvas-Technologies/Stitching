@@ -17,10 +17,8 @@ SET OUTPUTDIR=%DIRNAME%_stitched
 mkdir "..\%OUTPUTDIR%"
 if exist "..\%OUTPUTDIR%\" (
     echo Folder "..\%OUTPUTDIR%" created successfully.
-    pause
 ) else (
-    echo ERROR: Failed to create folder "%folder%".
-    pause
+    echo ERROR: Failed to create directory "..\%OUTPUTDIR%".
     exit /b 1
 )
 
@@ -39,7 +37,6 @@ cd "..\%OUTPUTDIR%"
 :: Error out if cd failed
 if errorlevel 1 (
     echo ERROR: Failed to change directory to "..\%OUTPUTDIR%".
-    pause
     exit /b 1
 )
 
