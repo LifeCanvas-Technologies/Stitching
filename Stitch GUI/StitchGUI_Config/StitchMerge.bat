@@ -12,7 +12,12 @@ cd /d %~dp0
 SET WORKINGDIR=%CD%
 for %%* in (.) do SET DIRNAME=%%~n*
 SET OUTPUTDIR=%DIRNAME%_stitched
+:: Create output directory and Validate the creation
 mkdir "..\%OUTPUTDIR%"
+if not exist "..\%OUTPUTDIR%" (
+    echo ERROR: Failed to create directory "..\%OUTPUTDIR%".
+    exit /b 1
+)
 
 
 call activate stitching
@@ -24,7 +29,14 @@ ECHO Done! DONE!
 
 NAS
 
+:: Change directory
 cd "..\%OUTPUTDIR%"
+:: Error out if cd failed
+if errorlevel 1 (
+    echo ERROR: Failed to change directory to "..\%OUTPUTDIR%".
+    exit /b 1
+)
+
 
 powershell -command "& {&'Get-ChildItem' -Path '.\*_*.tif*' -Recurse | Move-Item -Destination '.\' " }"
 
