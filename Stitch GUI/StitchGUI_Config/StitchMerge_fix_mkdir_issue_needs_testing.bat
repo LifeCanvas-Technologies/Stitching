@@ -15,13 +15,10 @@ SET OUTPUTDIR=%DIRNAME%_stitched
 
 :: Create output directory and Validate the creation
 mkdir "..\%OUTPUTDIR%"
-if exist "..\%OUTPUTDIR%\" (
-    echo Folder "..\%OUTPUTDIR%" created successfully.
-) else (
+if not exist "..\%OUTPUTDIR%" (
     echo ERROR: Failed to create directory "..\%OUTPUTDIR%".
     exit /b 1
 )
-
 
 call activate base
 :: ECHO CURRENT_DIR: "%CD%"
