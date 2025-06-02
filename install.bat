@@ -28,7 +28,7 @@ start /wait ni-vision-runtime_20.7_online.exe
 
 call conda env remove -n stitching
 
-call conda create -n stitching python=3.8
+call conda create -p C:\ProgramData\Anaconda3\envs\stitching python=3.8
 
 call conda activate stitching
 
