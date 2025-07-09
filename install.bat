@@ -1,3 +1,5 @@
+cd /D "%~dp0"
+
 @echo off
 echo Copy the 'terastitcher' directory to the C: drive and add 'C:\terastitcher' to the PATH environment variable, then press any key to continue.
 pause
