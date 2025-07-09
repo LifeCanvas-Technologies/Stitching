@@ -43,7 +43,7 @@ call pip install pystripe
 set SCRIPT="%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.vbs"
 
 echo Set WshShell = CreateObject("Wscript.shell") >> %SCRIPT%
-echo Set oLink = WshShell.CreateShortcut("%USERPROFILE%\Desktop\Stitch_GUI.lnk") >> %SCRIPT%
+echo Set oLink = WshShell.CreateShortcut("C:\Users\Public\Desktop\Stitch_GUI.lnk") >> %SCRIPT%
 echo oLink.TargetPath = "%~dp0Stitch GUI\StitchGUI.exe" >> %SCRIPT%
 @REM echo oLink.IconLocation = "%~dp0destripegui\data\lct.ico" >> %SCRIPT%
 echo oLink.Save >> %SCRIPT%
