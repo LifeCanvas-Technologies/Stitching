@@ -11,6 +11,7 @@ start /wait VC_redist.x64.exe
 start /wait vcredist_x64.exe
 start /wait ni-labview-2023-runtime-engine_23.3_online.exe
 start /wait ni-vision-runtime_23.0_online.exe
+start /wait ImageMagick-7.1.1-47-Q16-HDRI-x64-dll.exe
 
 
 call conda env remove -n stitching
