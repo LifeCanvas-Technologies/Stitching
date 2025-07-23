@@ -1,6 +1,11 @@
+@echo off
+if %cd% neq C:\Windows\System32 (
+	echo You need to run this installer as an Administrator
+	pause
+	exit
+)
 cd /D "%~dp0"
 
-@echo off
 echo Copy the 'terastitcher' directory to the C: drive and add 'C:\terastitcher' to the PATH environment variable, then press any key to continue.
 pause
 echo Download and run the BioFormats installer at: https://github.com/imaris/ImarisConvertBioformats, then press any key to continue.
@@ -12,7 +17,6 @@ start /wait vcredist_x64.exe
 start /wait ni-labview-2023-runtime-engine_23.3_online.exe
 start /wait ni-vision-runtime_23.0_online.exe
 start /wait ImageMagick-7.1.1-47-Q16-HDRI-x64-dll.exe
-
 
 call conda env remove -n stitching
 call conda env remove -p C:\ProgramData\Anaconda3\envs\stitching
@@ -27,8 +31,6 @@ call pip install -r Requirements.txt
 call pip install zetastitcher cvxpy==1.1.18 qpsolvers==1.8.0 quadprog==0.1.11
 
 call pip install pystripe
-
-@echo off
 
 set SCRIPT="%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.vbs"
 
