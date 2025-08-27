@@ -41,7 +41,7 @@ if errorlevel 1 (
 powershell -command "& {&'Get-ChildItem' -Path '.\*_*.tif*' -Recurse | Move-Item -Destination '.\' " }"
 
 :: Append excitation wavelength to stitched image file names
-set wavelength=%OUTPUTDIR:~15,3%
+set wavelength=%OUTPUTDIR:~[ExWL_offset],3%
 
 :: Run the PowerShell command
 powershell -command "& { $wavelength = '%wavelength%'; Get-ChildItem -Path '.\*.tif*' | ForEach-Object { $newName = $_.BaseName + '_' + $wavelength + $_.Extension; Rename-Item -Path $_.FullName -NewName $newName } }"
